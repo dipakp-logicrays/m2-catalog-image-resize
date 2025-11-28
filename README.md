@@ -12,6 +12,7 @@ A Magento 2 module that provides an advanced CLI command to resize product catal
 - [Usage](#usage)
 - [Options](#options)
 - [Examples](#examples)
+  - [Product ID Range Examples](#product-id-range-examples)
 - [Screenshots](#screenshots)
 - [Comparison with Native Command](#comparison-with-native-command)
 - [Troubleshooting](#troubleshooting)
@@ -160,63 +161,178 @@ php bin/magento learning:catalog:images:resize --product-skus=24-MB01
 php bin/magento learning:catalog:images:resize --product-skus="24-MB01,Test Product-1"
 ```
 
-#### 4. Process All Active Products
+#### 4. Process Product ID Range
+
+```bash
+# Process products from ID 1 to 100
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 100)
+
+# Process products from ID 50 to 150
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 50 150)
+
+# Process larger ranges (e.g., 1 to 1000)
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 1000)
+```
+
+#### 5. Process All Active Products
 
 ```bash
 php bin/magento learning:catalog:images:resize --all
 ```
 
+### Product ID Range Examples
+
+The `seq` command generates a sequence of numbers, which can be used to process a range of product IDs efficiently.
+
+#### Basic Product ID Ranges
+
+```bash
+# Process products from ID 1 to 100
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 100)
+
+# Process products from ID 50 to 150
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 50 150)
+
+# Process products from ID 100 to 500
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 100 500)
+
+# Process larger range (1 to 1000)
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 1000)
+```
+
+#### Product ID Ranges with Batch Processing
+
+```bash
+# Process products 1-500 in batches of 50
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 500) --batch-size=50
+
+# Process products 1-1000 in batches of 100
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 1000) --batch-size=100
+
+# Process products 500-1500 in batches of 50
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 500 1500) --batch-size=50
+```
+
+#### Product ID Ranges in Background
+
+```bash
+# Run in background - products 1 to 100
+nohup php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 100) > /tmp/image-resize-1-100.log 2>&1 &
+
+# Run in background - products 1 to 1000 with batch processing
+nohup php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 1000) --batch-size=50 > /tmp/image-resize-1-1000.log 2>&1 &
+
+# Run in background - specific range (500 to 1000)
+nohup php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 500 1000) > /tmp/image-resize-500-1000.log 2>&1 &
+
+# Check progress
+tail -f /tmp/image-resize-1-100.log
+
+# Check if process is still running
+ps aux | grep "learning:catalog:images:resize"
+```
+
+#### Product ID Ranges with Dry Run
+
+```bash
+# Preview products 1 to 100
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 100) --dry-run
+
+# Preview products 1 to 1000
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 1000) --dry-run
+```
+
+#### How `seq` Command Works
+
+The `seq` command generates a sequence of numbers:
+
+```bash
+# Basic syntax: seq -s, START END
+# -s, means use comma as separator
+
+seq -s, 1 5        # Generates: 1,2,3,4,5
+seq -s, 10 15      # Generates: 10,11,12,13,14,15
+seq -s, 1 100      # Generates: 1,2,3,...,98,99,100
+```
+
+This is equivalent to manually typing:
+```bash
+# Instead of typing:
+php bin/magento learning:catalog:images:resize --product-ids=1,2,3,4,5,...,100
+
+# You can use:
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 100)
+```
+
 ### Advanced Examples
 
-#### 5. Dry Run (Preview Mode)
+#### 6. Dry Run (Preview Mode)
 
 ```bash
 # Preview what will be processed without actually processing
 php bin/magento learning:catalog:images:resize --all --dry-run
+
+# Dry run for product range
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 100) --dry-run
 ```
 
-#### 6. Batch Processing
+#### 7. Batch Processing
 
 ```bash
 # Process all products in batches of 100
 php bin/magento learning:catalog:images:resize --all --batch-size=100
+
+# Process product range with batch size
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 500) --batch-size=50
 ```
 
-#### 7. Limit Processing
+#### 8. Limit Processing
 
 ```bash
 # Process only first 500 products
 php bin/magento learning:catalog:images:resize --all --max-records=500
 ```
 
-#### 8. Combined Options
+#### 9. Combined Options
 
 ```bash
 # Batch processing with limit
 php bin/magento learning:catalog:images:resize --all --batch-size=50 --max-records=200
+
+# Product range with batch size and limit
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 1000) --batch-size=100 --max-records=500
 ```
 
 ### Automation Examples
 
-#### 9. Quiet Mode for Scripts
+#### 10. Quiet Mode for Scripts
 
 ```bash
 # No output, suitable for cron jobs
 php bin/magento learning:catalog:images:resize --product-ids=1,2,3 --quiet
+
+# Quiet mode with product range
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 100) --quiet
 ```
 
-#### 10. CI/CD Friendly
+#### 11. CI/CD Friendly
 
 ```bash
 # Non-interactive, no colors
 php bin/magento learning:catalog:images:resize --all --no-interaction --no-ansi
+
+# Process product range in CI/CD
+php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 500) --no-interaction --no-ansi
 ```
 
-#### 11. Memory-Limited Environment
+#### 12. Memory-Limited Environment
 
 ```bash
 # Increase memory limit for large operations
 php -d memory_limit=2G bin/magento learning:catalog:images:resize --all --batch-size=25
+
+# Process product range with memory limit
+php -d memory_limit=2G bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 1000) --batch-size=25
 ```
 
 ## Screenshots
@@ -392,11 +508,23 @@ php -d memory_limit=2G bin/magento learning:catalog:images:resize --all
 ### Background Execution
 
 ```bash
-# Run in background
+# Run in background - all products
 nohup php bin/magento learning:catalog:images:resize --all > /tmp/image-resize.log 2>&1 &
+
+# Run in background - product ID range (1 to 100)
+nohup php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 100) > /tmp/image-resize.log 2>&1 &
+
+# Run in background - larger range (1 to 1000) with batch processing
+nohup php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 1 1000) --batch-size=50 > /tmp/image-resize.log 2>&1 &
+
+# Run in background - specific range (500 to 1000)
+nohup php bin/magento learning:catalog:images:resize --product-ids=$(seq -s, 500 1000) > /tmp/image-resize.log 2>&1 &
 
 # Check progress
 tail -f /tmp/image-resize.log
+
+# Check if process is still running
+ps aux | grep "learning:catalog:images:resize"
 ```
 
 ## Maintenance
